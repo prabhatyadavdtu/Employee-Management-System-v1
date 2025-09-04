@@ -98,7 +98,7 @@ class ApiService {
     // Check if token is expired
     isTokenExpired(token) {
         if (!token) return true;
-        
+
         try {
             const payload = JSON.parse(atob(token.split('.')[1]));
             return payload.exp * 1000 < Date.now();
@@ -134,7 +134,7 @@ class ApiService {
     async authenticatedRequest(url, options = {}) {
         try {
             const token = await this.refreshTokenIfNeeded();
-            
+
             const response = await fetch(url, {
                 ...options,
                 headers: {
@@ -152,6 +152,46 @@ class ApiService {
             }
             throw error;
         }
+    }
+
+    // Get all employees
+    async getAllEmployees() {
+        const response = await this.authenticatedRequest(`${this.baseURL}/employee`, {
+            method: 'GET'
+        });
+        // Ensure we return an array
+        console.log("Response from getAllEmployees:", response);
+        return Array.isArray(response) ? response : [];
+    }
+
+    // Get all departments
+    async getAllDepartments() {
+        return this.authenticatedRequest(`${this.baseURL}/department`, {
+            method: 'GET'
+        });
+    }
+
+    // Add new employee
+    async addEmployee(employee) {
+        return this.authenticatedRequest(`${this.baseURL}/employee/AddEmployee`, {
+            method: 'POST',
+            body: JSON.stringify(employee)
+        });
+    }
+
+    // Update employee
+    async updateEmployee(employee) {
+        return this.authenticatedRequest(`${this.baseURL}/employee/UpdateEmployee`, {
+            method: 'PUT',
+            body: JSON.stringify(employee)
+        });
+    }
+
+    // Delete employee
+    async deleteEmployee(id) {
+        return this.authenticatedRequest(`${this.baseURL}/employee/DeleteEmployee?id=${id}`, {
+            method: 'DELETE'
+        });
     }
 }
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Search, Mail, Phone, X, User } from 'lucide-react';
 import { variables } from './Variables';
+import apiService from './services/api';
 
 const Employee = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -20,6 +21,14 @@ const Employee = () => {
     DOJ: '',
     // Salary: ''
   });
+  const [pagination, setPagination] = useState({
+    page: 1,
+    pageSize: 10,
+    totalCount: 0,
+    totalPages: 0,
+    hasNextPage: false,
+    hasPreviousPage: false
+  });
 
   // Fetch employees on component mount
   useEffect(() => {
@@ -30,16 +39,27 @@ const Employee = () => {
   const fetchEmployees = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(variables.API_URL + 'employee/GetEmployee');
-      // const response = await fetch(variables.API_URL + 'EmployeeNew');
-      if (!response.ok) {
-        throw new Error('Failed to fetch employees');
-      }
-      const data = await response.json();
-      setEmployees(data);
+      const response = await apiService.getAllEmployees();
+      console.log('API Response:', response);
+
+      // Extract items and pagination info from response
+      const { items, totalCount, page, pageSize, totalPages, hasNextPage, hasPreviousPage } = response;
+
+      // Set employees from items array
+      setEmployees(Array.isArray(items) ? items : []);
+
+      // Update pagination state
+      setPagination({
+        page,
+        pageSize,
+        totalCount,
+        totalPages,
+        hasNextPage,
+        hasPreviousPage
+      });
     } catch (error) {
       console.error('Error fetching employees:', error);
-      // Handle error (show notification, etc.)
+      setEmployees([]);
     } finally {
       setIsLoading(false);
     }
@@ -48,12 +68,13 @@ const Employee = () => {
   const fetchDepartments = async () => {
     try {
       setIsDepartmentsLoading(true);
-      const response = await fetch(variables.API_URL + 'department/GetDepartment'); // Update with your actual endpoint
+      //const response = await fetch(variables.API_URL + 'department'); // Update with your actual endpoint
       //const response = await fetch(variables.API_URL + 'DepartmentNew'); // Update with your actual endpoint
-      if (!response.ok) {
-        throw new Error('Failed to fetch departments');
-      }
-      const data = await response.json();
+      // if (!response.ok) {
+      //   throw new Error('Failed to fetch departments');
+      // }
+      // const data = await response.json();
+      const data = await apiService.getAllDepartments();
       setDepartments(data);
     } catch (error) {
       console.error('Error fetching departments:', error);
@@ -63,30 +84,16 @@ const Employee = () => {
     }
   };
 
-  const filteredEmployees = employees.filter(emp =>
-    emp.EmployeeName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    emp.Department?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredEmployees = Array.isArray(employees) ? employees.filter(emp =>
+    emp?.EmployeeName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    emp?.Department?.toLowerCase().includes(searchTerm.toLowerCase())
+  ) : [];
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this employee?')) {
       try {
-        const response = await fetch(variables.API_URL + 'employee/DeleteEmployee?id=' + id, {
-          method: 'DELETE',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          }
-        });
-        console.log("Response is : ", response);
-        if (!response.ok) {
-          throw new Error('Failed to delete employee');
-        }
-
-        // Remove from local state
+        await apiService.deleteEmployee(id);
         setEmployees(prev => prev.filter(emp => emp.EmployeeID !== id));
-
-        // Optional: Show success message
         console.log('Employee deleted successfully');
       } catch (error) {
         console.error('Error deleting employee:', error);
@@ -118,41 +125,12 @@ const Employee = () => {
 
   const handleSave = async () => {
     try {
-      let response;
-
       if (modalType === 'add') {
-        // Add new employee
-        response = await fetch(variables.API_URL + 'employee/AddEmployee', {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(currentEmployee)
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to add employee');
-        }
-        const newEmployee = await response.json();
+        const newEmployee = await apiService.addEmployee(currentEmployee);
         setEmployees(prev => [...prev, newEmployee]);
         console.log('Employee added successfully');
-
       } else {
-        // Update existing employee
-        response = await fetch(variables.API_URL + 'employee/UpdateEmployee', {
-          method: 'PUT',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(currentEmployee)
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to update employee');
-        }
-
+        await apiService.updateEmployee(currentEmployee);
         setEmployees(prev =>
           prev.map(emp =>
             emp.EmployeeID === currentEmployee.EmployeeID ? currentEmployee : emp
@@ -162,7 +140,6 @@ const Employee = () => {
       }
       await fetchEmployees();
       handleModalClose();
-
     } catch (error) {
       console.error('Error saving employee:', error);
       // Handle error (show notification, etc.)
@@ -468,6 +445,61 @@ const Employee = () => {
                 </div>
               </div>
             )}
+
+          // Add this before the closing div of the table section
+const PaginationControls = () => (
+            <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
+              <div className="flex flex-1 justify-between sm:hidden">
+                <button
+                  onClick={() => handlePageChange(pagination.page - 1)}
+                  disabled={!pagination.hasPreviousPage}
+                  className={`relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium ${!pagination.hasPreviousPage
+                      ? 'text-gray-300'
+                      : 'text-gray-700 hover:bg-gray-50'
+                    }`}
+                >
+                  Previous
+                </button>
+                <button
+                  onClick={() => handlePageChange(pagination.page + 1)}
+                  disabled={!pagination.hasNextPage}
+                  className={`relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium ${!pagination.hasNextPage
+                      ? 'text-gray-300'
+                      : 'text-gray-700 hover:bg-gray-50'
+                    }`}
+                >
+                  Next
+                </button>
+              </div>
+              <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm text-gray-700">
+                    Showing <span className="font-medium">{((pagination.page - 1) * pagination.pageSize) + 1}</span> to{' '}
+                    <span className="font-medium">
+                      {Math.min(pagination.page * pagination.pageSize, pagination.totalCount)}
+                    </span>{' '}
+                    of <span className="font-medium">{pagination.totalCount}</span> results
+                  </p>
+                </div>
+                <div>
+                  <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                    {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((pageNumber) => (
+                      <button
+                        key={pageNumber}
+                        onClick={() => handlePageChange(pageNumber)}
+                        className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${pageNumber === pagination.page
+                            ? 'z-10 bg-blue-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600'
+                            : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-offset-0'
+                          }`}
+                      >
+                        {pageNumber}
+                      </button>
+                    ))}
+                  </nav>
+                </div>
+              </div>
+            </div>
+            );
           </div>
         )}
       </div>
