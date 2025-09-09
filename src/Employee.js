@@ -12,11 +12,18 @@ const Employee = () => {
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState("add");
   const [currentEmployee, setCurrentEmployee] = useState({
-    EmployeeID: 0,
-    EmployeeName: "",
-    EmailId: "",
-    Department: "",
-    DOJ: "",
+    EmployeeId: 0,
+    FirstName: "",
+    LastName: "",
+    Email: "",
+    Company: "",
+    Position: "",
+    HireDate: "",
+    Salary: 0.0,
+    DepartmentId: "",
+    IsActive: true,
+    Phone: "",
+    Address: "",
   });
   const [pagination, setPagination] = useState({
     page: 1,
@@ -86,14 +93,14 @@ const Employee = () => {
   // Filter employees based on search term
   const filteredEmployees = Array.isArray(employees)
     ? employees.filter(
-        (emp) =>
-          emp?.EmployeeName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          emp?.Department?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          emp?.FirstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          emp?.LastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          emp?.Email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          emp?.EmailId?.toLowerCase().includes(searchTerm.toLowerCase())
-      )
+      (emp) =>
+        emp?.EmployeeName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        emp?.Department?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        emp?.FirstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        emp?.LastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        emp?.Email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        emp?.EmailId?.toLowerCase().includes(searchTerm.toLowerCase())
+    )
     : [];
 
   const handleDelete = async (id) => {
@@ -111,11 +118,18 @@ const Employee = () => {
 
   const handleAdd = () => {
     setCurrentEmployee({
-      EmployeeID: 0,
-      EmployeeName: "",
-      EmailId: "",
+      EmployeeId: 0,
+      FirstName: "",
+      LastName: "",
+      Email: "",
+      Company: "",
+      Position: "",
+      HireDate: "",
+      Salary: 0.0,
       Department: "",
-      DOJ: "",
+      IsActive: true,
+      Phone: "",
+      Address: "",
     });
     setModalType("add");
     setShowModal(true);
@@ -146,11 +160,15 @@ const Employee = () => {
   const handleModalClose = () => {
     setShowModal(false);
     setCurrentEmployee({
-      EmployeeID: 0,
-      EmployeeName: "",
-      EmailId: "",
+      EmployeeId: 0,
+      FirstName: "",
+      LastName: "",
+      Email: "",
+      Company: "",
+      Position: "",
+      HireDate: "",
+      Salary: 0.0,
       Department: "",
-      DOJ: "",
     });
   };
 
@@ -179,7 +197,7 @@ const Employee = () => {
         </h2>
         <button
           onClick={handleAdd}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition-colors shadow-lg hover:shadow-xl"
+          className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 rounded-5 flex items-center justify-center gap-2 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
         >
           <Plus className="h-5 w-5" />
           <span>Add Employee</span>
@@ -220,7 +238,7 @@ const Employee = () => {
                 <table className="min-w-full">
                   <thead className="bg-gray-900">
                     <tr>
-                      <th className="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
+                      <th className="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider flex items-center mt-1 ml-20">
                         Employee
                       </th>
                       <th className="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
@@ -255,8 +273,8 @@ const Employee = () => {
                                   : employee.EmployeeName}
                               </span>
                             </div>
-                            <div className="ml-4 flex flex-col justify-center">
-                              <div className="text-sm font-medium text-gray-900">
+                            <div className="ml-4">
+                              <div className="text-sm font-medium text-gray-900 flex items-center">
                                 {employee.FirstName && employee.LastName
                                   ? `${employee.FirstName} ${employee.LastName}`
                                   : employee.EmployeeName || "Unknown"}
@@ -279,7 +297,7 @@ const Employee = () => {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-900">
-                          {`₹ ${employee.Salary}` || "N/A"} 
+                          {`₹ ${employee.Salary}` || "N/A"}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {employee.HireDate
@@ -287,7 +305,7 @@ const Employee = () => {
                             : "N/A"}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <div className="flex items-center justify-center space-x-3">
+                          <div className="flex items-center justify-center space-x-3 gap-2">
                             <button
                               className="text-blue-600 hover:text-blue-900 hover:scale-110 transition-all"
                               onClick={() => handleEdit(employee)}
@@ -297,7 +315,7 @@ const Employee = () => {
                             </button>
                             <button
                               className="text-red-600 hover:text-red-900 hover:scale-110 transition-all"
-                              onClick={() => handleDelete(employee.EmployeeID)}
+                              onClick={() => handleDelete(employee.EmployeeId)}
                               title="Delete employee"
                             >
                               <Trash2 className="h-5 w-5" />
@@ -378,11 +396,10 @@ const Employee = () => {
                             key={index + 1}
                             onClick={() => handlePageChange(index + 1)}
                             disabled={isLoading}
-                            className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                              pagination.page === index + 1
-                                ? "z-10 bg-blue-50 border-blue-500 text-blue-600"
-                                : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
-                            } disabled:opacity-50 disabled:cursor-not-allowed`}
+                            className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${pagination.page === index + 1
+                              ? "z-10 bg-blue-50 border-blue-500 text-blue-600"
+                              : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
+                              } disabled:opacity-50 disabled:cursor-not-allowed`}
                           >
                             {index + 1}
                           </button>
@@ -423,16 +440,16 @@ const Employee = () => {
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl transform transition-all max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between px-8 py-6 border-b border-gray-200">
+            <div className="flex items-center justify-between px-8 py-2 border-b border-gray-200">
               <div className="flex items-center space-x-3">
                 <div className="p-2 bg-blue-100 rounded-lg">
-                  <User className="h-6 w-6 text-blue-600" />
+                  <User className="h-8 w-8 text-blue-600" />
                 </div>
                 <div>
-                  <h4 className="text-xl font-bold text-gray-900">
+                  <h4 className="text-xl font-bold text-gray-900 mb-0 mt-3 text-left">
                     {modalType === "add" ? "Add New Employee" : "Edit Employee"}
                   </h4>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-left text-gray-500">
                     {modalType === "add"
                       ? "Enter employee information"
                       : "Update employee information"}
@@ -441,7 +458,7 @@ const Employee = () => {
               </div>
               <button
                 onClick={handleModalClose}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-5 transition-colors"
               >
                 <X className="h-5 w-5 text-gray-400" />
               </button>
@@ -449,100 +466,239 @@ const Employee = () => {
 
             <div className="px-8 py-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="md:col-span-2">
+
+                {modalType === "add" && (
+                  <div className="text-left">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      First Name *
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                      value={currentEmployee.FirstName || ""}
+                      onChange={(e) =>
+                        handleInputChange("FirstName", e.target.value)
+                      }
+                      placeholder="Enter first name"
+                      required
+                    />
+                  </div>
+                )}
+
+                {modalType === "add" && (
+                  <div className="text-left">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Last Name *
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                      value={currentEmployee.LastName || ""}
+                      onChange={(e) =>
+                        handleInputChange("LastName", e.target.value)
+                      }
+                      placeholder="Enter last name"
+                      required
+                    />
+                  </div>
+                )}
+
+                {modalType === "add" && (
+                  <div className="text-left">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Email Address *
+                    </label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
+                      <input
+                        type="email"
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                        value={currentEmployee.Email || ""}
+                        onChange={(e) =>
+                          handleInputChange("Email", e.target.value)
+                        }
+                        placeholder="email@company.com"
+                        required
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {modalType === "add" && (
+                  <div className="text-left">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Company *
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                      value={currentEmployee.Company || ""}
+                      onChange={(e) =>
+                        handleInputChange("Company", e.target.value)
+                      }
+                      placeholder="Enter company name"
+                      required
+                    />
+                  </div>
+                )}
+
+                <div className="text-left">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Full Name *
+                    Position *
                   </label>
                   <input
                     type="text"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                    value={currentEmployee.EmployeeName || ""}
+                    value={currentEmployee.Position || ""}
                     onChange={(e) =>
-                      handleInputChange("EmployeeName", e.target.value)
+                      handleInputChange("Position", e.target.value)
                     }
-                    placeholder="Enter full name"
+                    placeholder="Enter position name"
                     required
                   />
                 </div>
 
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email Address *
-                  </label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
-                    <input
-                      type="email"
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                      value={currentEmployee.EmailId || ""}
-                      onChange={(e) =>
-                        handleInputChange("EmailId", e.target.value)
-                      }
-                      placeholder="email@company.com"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div>
+                <div className="text-left">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Department *
                   </label>
                   <select
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                    value={currentEmployee.Department || ""}
+                    value={currentEmployee.DepartmentId || ""}
                     onChange={(e) =>
-                      handleInputChange("Department", e.target.value)
+                      handleInputChange("DepartmentId", e.target.value)
                     }
                     required
                     disabled={isDepartmentsLoading}
                   >
-                    <option value="">
+                    <option value="DepartmentId">
                       {isDepartmentsLoading
                         ? "Loading departments..."
                         : "Select Department"}
                     </option>
                     {departments.map((dept) => (
                       <option
-                        key={dept.DepartmentID}
-                        value={dept.DepartmentName}
+                        key={dept.DepartmentId}
+                        value={dept.DepartmentId}
                       >
-                        {dept.DepartmentName}
+                        {dept.Name || dept.DepartmentName}
                       </option>
                     ))}
                   </select>
                 </div>
 
-                <div>
+                {modalType === "add" && (
+                  <div className="text-left">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Joining Date *
+                    </label>
+                    <input
+                      type="date"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                      value={
+                        currentEmployee.HireDate
+                          ? currentEmployee.HireDate.split("T")[0]
+                          : ""
+                      }
+                      onChange={(e) => handleInputChange("HireDate", e.target.value)}
+                      required
+                    />
+                  </div>
+                )}
+
+                <div className="text-left">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Join Date *
+                    Salary *
                   </label>
                   <input
-                    type="date"
+                    type="number"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                    value={
-                      currentEmployee.DOJ
-                        ? currentEmployee.DOJ.split("T")[0]
-                        : ""
+                    value={currentEmployee.Salary || ""}
+                    onChange={(e) =>
+                      handleInputChange("Salary", e.target.value)
                     }
-                    onChange={(e) => handleInputChange("DOJ", e.target.value)}
+                    placeholder="Enter salary amount"
                     required
                   />
                 </div>
+
+                <div className="text-left">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Phone *
+                  </label>
+                  <input
+                    type="tel"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    value={currentEmployee.Phone || ""}
+                    onChange={(e) => {
+                      let value = e.target.value.replace(/\D/g, ''); // Remove all non-digits
+                      // Limit total length
+                      if (value.length <= 10) {
+                        handleInputChange("Phone", value);
+                      }
+                    }}
+                    placeholder="9876543210"
+                    required
+                  />
+                  {/* Optional: Add validation message */}
+                  {currentEmployee.Phone && !/^[6-9]\d{9}$/.test(currentEmployee.Phone.replace(/\D/g, '')) && (
+                    <p className="text-red-500 text-sm mt-1">Please enter a valid 10-digit phone number starting with 6-9</p>
+                  )}
+                </div>
+
+                <div className="text-left">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Address *
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    value={currentEmployee.Address || ""}
+                    onChange={(e) =>
+                      handleInputChange("Address", e.target.value)
+                    }
+                    placeholder="Enter address"
+                    required
+                  />
+                </div>
+
+                {modalType === "edit" && (
+                  <div className="text-left">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Employee Status *
+                    </label>
+                    <div className="flex items-center space-x-3 mt-3">
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="sr-only peer"
+                          checked={currentEmployee.IsActive || false}
+                          onChange={(e) =>
+                            handleInputChange("IsActive", e.target.checked)
+                          }
+                        />
+                        <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                      </label>
+                      <span className="text-sm text-gray-700">
+                        {currentEmployee.IsActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
-            <div className="flex items-center justify-end space-x-4 px-8 py-6 bg-gray-50 rounded-b-2xl">
+            <div className="flex items-center justify-end space-x-4 px-8 py-3 bg-gray-50 rounded-b-2xl gap-2">
               <button
                 type="button"
-                className="px-6 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-gray-200 transition-colors font-medium"
+                className="px-6 py-2 text-gray-700 bg-white border border-gray-300 rounded-3 hover:bg-gray-50 focus:ring-2 focus:ring-gray-200 transition-colors font-medium"
                 onClick={handleModalClose}
               >
                 Cancel
               </button>
               <button
                 type="button"
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 transition-colors font-medium shadow-lg"
+                className="px-6 py-2 bg-blue-600 text-white rounded-3 hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 transition-colors font-medium shadow-lg"
                 onClick={handleSave}
               >
                 {modalType === "add" ? "Add Employee" : "Save Changes"}

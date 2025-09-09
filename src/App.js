@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Dashboard from './Dashboard';
 import Header from './Header';
-import { Department } from './Department';
+import DepartmentNew from './DepartmentNew';
 import Employee from './Employee';
 import Footer from './Footer';
 import Landing from './Landing';
@@ -136,7 +136,7 @@ function App() {
                   <Header user={user} onLogout={handleLogout} />
                   <main className="flex-grow mt-4 w-[80vw] mx-auto">
                     <div className="w-full px-6 py-8">
-                      <Department />
+                      <DepartmentNew />
                     </div>
                   </main>
                   <Footer />

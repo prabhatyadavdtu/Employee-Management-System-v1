@@ -156,22 +156,9 @@ class ApiService {
     }
   }
 
-  // Get all employees
-//   async getAllEmployees() {
-//     const response = await this.authenticatedRequest(
-//       `${this.baseURL}/employee`,
-//       {
-//         method: "GET",
-//       }
-//     );
-//     // Ensure we return an array
-//     console.log("Response from getAllEmployees:", response);
-//     return Array.isArray(response) ? response : [];
-//   }
-
-  async getAllEmployees(page = 1, pageSize = 10) {
+  async getAllEmployees(page = 1, pageSize = 10, isActive = true) {
     const response = await this.authenticatedRequest(
-      `${this.baseURL}/employee?page=${page}&pageSize=${pageSize}`,
+      `${this.baseURL}/employee?page=${page}&pageSize=${pageSize}&isActive=${isActive}`,
       {
         method: "GET",
       }
@@ -197,7 +184,7 @@ class ApiService {
 
   // Add new employee
   async addEmployee(employee) {
-    return this.authenticatedRequest(`${this.baseURL}/employee/AddEmployee`, {
+    return this.authenticatedRequest(`${this.baseURL}/employee`, {
       method: "POST",
       body: JSON.stringify(employee),
     });
@@ -206,7 +193,7 @@ class ApiService {
   // Update employee
   async updateEmployee(employee) {
     return this.authenticatedRequest(
-      `${this.baseURL}/employee/UpdateEmployee`,
+      `${this.baseURL}/employee/${employee.EmployeeId}`,
       {
         method: "PUT",
         body: JSON.stringify(employee),
@@ -217,7 +204,7 @@ class ApiService {
   // Delete employee
   async deleteEmployee(id) {
     return this.authenticatedRequest(
-      `${this.baseURL}/employee/DeleteEmployee?id=${id}`,
+      `${this.baseURL}/employee/${id}`,
       {
         method: "DELETE",
       }
