@@ -44,18 +44,18 @@ const Landing = () => {
               <span className="text-xl font-bold text-gray-900">EMS Pro</span>
             </div>
             <div className="flex items-center space-x-4">
-                             <button
-                 onClick={handleLoginClick}
-                 className="text-gray-700 hover:text-gray-900 px-4 py-2 rounded-md text-sm font-medium transition-colors"
-               >
-                 Sign In
-               </button>
-               <button
-                 onClick={handleRegisterClick}
-                 className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md text-sm font-medium transition-colors shadow-lg hover:shadow-xl"
-               >
-                 Get Started
-               </button>
+              <button
+                onClick={handleLoginClick}
+                className="text-gray-700 hover:text-gray-900 px-4 py-2 rounded-md text-sm font-medium transition-colors"
+              >
+                Sign In
+              </button>
+              <button
+                onClick={handleRegisterClick}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-3 text-sm font-medium transition-colors shadow-lg hover:shadow-xl"
+              >
+                Get Started
+              </button>
             </div>
           </div>
         </div>
@@ -69,23 +69,23 @@ const Landing = () => {
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600"> Workforce Management</span>
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Powerful, intuitive, and secure employee management system designed to help HR professionals 
+            Powerful, intuitive, and secure employee management system designed to help HR professionals
             and managers organize, track, and optimize their workforce operations.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                         <button
-               onClick={handleRegisterClick}
-               className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-             >
-               Start Free Trial
-               <ArrowRight className="inline-block ml-2 w-5 h-5" />
-             </button>
-             <button
-               onClick={handleLoginClick}
-               className="border-2 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-200 bg-white hover:bg-gray-50"
-             >
-               Sign In
-             </button>
+            <button
+              onClick={handleRegisterClick}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-3 text-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+            >
+              Start Free Trial
+              <ArrowRight className="inline-block ml-2 w-5 h-5" />
+            </button>
+            <button
+              onClick={handleLoginClick}
+              className="border-2 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 px-8 py-3 rounded-3 text-lg font-semibold transition-all duration-200 bg-white hover:bg-gray-50"
+            >
+              Sign In
+            </button>
           </div>
         </div>
       </div>
@@ -100,7 +100,7 @@ const Landing = () => {
             Comprehensive tools and features designed to streamline your HR processes and improve team productivity.
           </p>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {features.map((feature, index) => (
             <div key={index} className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100">
@@ -124,18 +124,18 @@ const Landing = () => {
             Join thousands of companies that trust our platform to manage their workforce efficiently.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                         <button
-               onClick={handleRegisterClick}
-               className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-             >
-               Get Started Now
-             </button>
-             <button
-               onClick={handleLoginClick}
-               className="border-2 border-white text-white hover:bg-white hover:text-blue-600 px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-200"
-             >
-               Sign In
-             </button>
+            <button
+              onClick={handleRegisterClick}
+              className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-3 rounded-3 text-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+            >
+              Get Started Now
+            </button>
+            <button
+              onClick={handleLoginClick}
+              className="border-2 border-white text-white hover:bg-white hover:text-blue-600 px-8 py-3 rounded-3 text-lg font-semibold transition-all duration-200"
+            >
+              Sign In
+            </button>
           </div>
         </div>
       </div>
@@ -151,7 +151,7 @@ const Landing = () => {
                 </div>
                 <span className="text-lg font-bold">EMS Pro</span>
               </div>
-              <p className="text-gray-400">
+              <p className="text-gray-400 text-left">
                 Empowering organizations with intelligent workforce management solutions.
               </p>
             </div>

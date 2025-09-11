@@ -182,6 +182,32 @@ class ApiService {
     });
   }
 
+  async addDepartment(department) {
+    return this.authenticatedRequest(`${this.baseURL}/department`, {
+      method: "POST",
+      body: JSON.stringify(department),
+    });
+  }
+
+  async updateDepartment(department) {
+    return this.authenticatedRequest(
+      `${this.baseURL}/department/${department.DepartmentId}`,
+      {
+        method: "PUT",
+        body: JSON.stringify(department),
+      }
+    );
+  }
+
+  async deleteDepartment(id) {
+    return this.authenticatedRequest(
+      `${this.baseURL}/department/${id}`,
+      {
+        method: "DELETE",
+      }
+    );
+  }
+
   // Add new employee
   async addEmployee(employee) {
     return this.authenticatedRequest(`${this.baseURL}/employee`, {
@@ -209,6 +235,13 @@ class ApiService {
         method: "DELETE",
       }
     );
+  }
+
+  // Get all dashboard data
+  async getDashboardData() {
+    return this.authenticatedRequest(`${this.baseURL}/dashboard/stats`, {
+      method: "GET",
+    });
   }
 }
 

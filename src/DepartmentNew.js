@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Plus, Edit, Trash2, Save, X, Eye, Users, IndianRupee, Building2, Calendar, User } from 'lucide-react';
 import apiService from './services/api';
+import { useLocation } from "react-router-dom";
 
 const DepartmentNew = () => {
+  const location = useLocation();
   const [departments, setDepartments] = useState([]);
   const [filteredDepartments, setFilteredDepartments] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -24,6 +26,12 @@ const DepartmentNew = () => {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
+    if (location.state?.AddDepartmentModal) {
+      setShowModal(true);
+    }
+  }, [location.state]);
+
+  useEffect(() => {
     loadDepartments();
   }, []);
 
@@ -35,10 +43,8 @@ const DepartmentNew = () => {
     setIsLoading(true);
     try {
       const response = await apiService.getAllDepartments();
-      setTimeout(() => {
-        setDepartments(response);
-        setIsLoading(false);
-      }, 800);
+      setDepartments(response);
+      setIsLoading(false);
     } catch (error) {
       console.error('Error loading departments:', error);
       setIsLoading(false);
@@ -152,33 +158,29 @@ const DepartmentNew = () => {
 
       if (modalMode === 'add') {
         // Replace with actual API call
-        // const response = await fetch('/api/departments', {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify(departmentData)
-        // });
-
-        departmentData.DepartmentId = Math.max(...departments.map(d => d.DepartmentId)) + 1;
-        setDepartments(prev => [...prev, departmentData]);
+        const response = await apiService.addDepartment(departmentData);
+        console.log('Add department response:', response);
+        // departmentData.DepartmentId = Math.max(...departments.map(d => d.DepartmentId)) + 1;
+        // setDepartments(prev => [...prev, departmentData]);
       } else {
-        // Replace with actual API call
-        // const response = await fetch(`/api/departments/${formData.departmentId}`, {
-        //   method: 'PUT',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify(departmentData)
-        // });
-
-        setDepartments(prev => prev.map(dept =>
-          dept.DepartmentId === formData.departmentId ? departmentData : dept
-        ));
+        const response = await apiService.updateDepartment(departmentData);
+        console.log('Update department response:', response);
+        // setDepartments(prev => prev.map(dept =>
+        //   dept.DepartmentId === formData.departmentId ? departmentData : dept
+        // ));
       }
-
+      await loadDepartments();
       setTimeout(() => {
         closeModal();
         setIsLoading(false);
       }, 600);
     } catch (error) {
       console.error('Error saving department:', error);
+      if (error?.message?.includes("Department already exist with this name")) {
+        setErrors({ form: "This Department is already exist." });
+      } else {
+        setErrors({ form: "An error occurred while saving. Please try again." });
+      }
       setIsLoading(false);
     }
   };
@@ -188,13 +190,10 @@ const DepartmentNew = () => {
 
     setIsLoading(true);
     try {
-      // Replace with actual API call
-      // await fetch(`/api/departments/${departmentId}`, { method: 'DELETE' });
+      const response = await apiService.deleteDepartment(departmentId);
+      console.log('Delete department response:', response);
 
-      setTimeout(() => {
-        setDepartments(prev => prev.filter(dept => dept.DepartmentId !== departmentId));
-        setIsLoading(false);
-      }, 400);
+      await loadDepartments();
     } catch (error) {
       console.error('Error deleting department:', error);
       setIsLoading(false);
@@ -231,7 +230,7 @@ const DepartmentNew = () => {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="space-y-8">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Header */}
         <div className="mb-8">
@@ -427,25 +426,35 @@ const DepartmentNew = () => {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md max-h-screen overflow-y-auto shadow-2xl">
-            <div className="sticky top-0 bg-white rounded-t-2xl border-b border-gray-100 px-6 py-4">
-              <div className="flex justify-between items-center">
-                <h2 className="text-xl font-bold text-gray-900">
-                  {modalMode === 'add' ? '➕ Add Department' :
-                    modalMode === 'edit' ? '✏️ Edit Department' : '👁️ Department Details'}
-                </h2>
-                <button
-                  onClick={closeModal}
-                  className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <X size={20} />
-                </button>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl w-full max-w-xl shadow-2xl transform transition-all max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between px-8 py-2 border-b border-gray-200">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <Building2 className="h-8 w-8 text-blue-600" />
+                </div>
+                <div>
+                  <h4 className="text-xl font-bold text-gray-900 mb-0 mt-3 text-left">
+                    {modalMode === 'add' ? 'Add New Department' :
+                      modalMode === 'edit' ? 'Edit Department' : 'Department Details'}
+                  </h4>
+                  <p className="text-sm text-left text-gray-500">
+                    {modalMode === 'add' ? 'Enter department information' :
+                      modalMode === 'edit' ? 'Update department information' : 'View department information'}
+                  </p>
+                </div>
               </div>
+              <button
+                onClick={closeModal}
+                className="p-2 hover:bg-gray-100 rounded-5 transition-colors"
+              >
+                <X className="h-5 w-5 text-gray-400" />
+              </button>
             </div>
 
             <div className="p-6 space-y-6">
-              <div>
+              {errors.form && <p className="text-red-500 text-sm mb-4">{errors.form}</p>}
+              <div className='text-left'>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Department Name *
                 </label>
@@ -455,14 +464,14 @@ const DepartmentNew = () => {
                   value={formData.name}
                   onChange={handleInputChange}
                   disabled={modalMode === 'view'}
-                  className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.name ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.name ? 'border-red-300 bg-red-50' : 'border-gray-200'
                     } ${modalMode === 'view' ? 'bg-gray-50 text-gray-600' : 'bg-white'}`}
                   placeholder="Enter department name"
                 />
                 {errors.name && <p className="text-red-500 text-xs mt-2 flex items-center gap-1">⚠️ {errors.name}</p>}
               </div>
 
-              <div>
+              <div className='text-left'>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Description *
                 </label>
@@ -472,7 +481,7 @@ const DepartmentNew = () => {
                   onChange={handleInputChange}
                   disabled={modalMode === 'view'}
                   rows="3"
-                  className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none ${errors.description ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none ${errors.description ? 'border-red-300 bg-red-50' : 'border-gray-200'
                     } ${modalMode === 'view' ? 'bg-gray-50 text-gray-600' : 'bg-white'}`}
                   placeholder="Enter department description"
                 />
@@ -480,7 +489,7 @@ const DepartmentNew = () => {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
+                <div className='text-left'>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Manager ID
                   </label>
@@ -490,13 +499,13 @@ const DepartmentNew = () => {
                     value={formData.managerId}
                     onChange={handleInputChange}
                     disabled={modalMode === 'view'}
-                    className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${modalMode === 'view' ? 'bg-gray-50 text-gray-600 border-gray-200' : 'bg-white border-gray-200'
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${modalMode === 'view' ? 'bg-gray-50 text-gray-600 border-gray-200' : 'bg-white border-gray-200'
                       }`}
                     placeholder="Enter manager ID"
                   />
                 </div>
 
-                <div>
+                <div className='text-left'>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Employee Count
                   </label>
@@ -506,48 +515,49 @@ const DepartmentNew = () => {
                     value={formData.employeeCount}
                     onChange={handleInputChange}
                     disabled={modalMode === 'view'}
-                    className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${modalMode === 'view' ? 'bg-gray-50 text-gray-600 border-gray-200' : 'bg-white border-gray-200'
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${modalMode === 'view' ? 'bg-gray-50 text-gray-600 border-gray-200' : 'bg-white border-gray-200'
                       }`}
                     placeholder="Enter employee count"
                   />
                 </div>
               </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className='text-left'>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Manager Name
+                  </label>
+                  <input
+                    type="text"
+                    name="managerName"
+                    value={formData.managerName}
+                    onChange={handleInputChange}
+                    disabled={modalMode === 'view'}
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${modalMode === 'view' ? 'bg-gray-50 text-gray-600 border-gray-200' : 'bg-white border-gray-200'
+                      }`}
+                    placeholder="Enter manager name"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Manager Name
-                </label>
-                <input
-                  type="text"
-                  name="managerName"
-                  value={formData.managerName}
-                  onChange={handleInputChange}
-                  disabled={modalMode === 'view'}
-                  className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${modalMode === 'view' ? 'bg-gray-50 text-gray-600 border-gray-200' : 'bg-white border-gray-200'
-                    }`}
-                  placeholder="Enter manager name"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Budget *
-                </label>
-                <input
-                  type="number"
-                  name="budget"
-                  value={formData.budget}
-                  onChange={handleInputChange}
-                  disabled={modalMode === 'view'}
-                  className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.budget ? 'border-red-300 bg-red-50' : 'border-gray-200'
-                    } ${modalMode === 'view' ? 'bg-gray-50 text-gray-600' : 'bg-white'}`}
-                  placeholder="Enter budget amount"
-                />
-                {errors.budget && <p className="text-red-500 text-xs mt-2 flex items-center gap-1">⚠️ {errors.budget}</p>}
+                <div className='text-left'>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Budget *
+                  </label>
+                  <input
+                    type="number"
+                    name="budget"
+                    value={formData.budget}
+                    onChange={handleInputChange}
+                    disabled={modalMode === 'view'}
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${errors.budget ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                      } ${modalMode === 'view' ? 'bg-gray-50 text-gray-600' : 'bg-white'}`}
+                    placeholder="Enter budget amount"
+                  />
+                  {errors.budget && <p className="text-red-500 text-xs mt-2 flex items-center gap-1">⚠️ {errors.budget}</p>}
+                </div>
               </div>
 
               {modalMode === 'view' && selectedDepartment && (
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 space-y-3 border border-blue-100">
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 space-y-3 border border-blue-100">
                   <h4 className="font-semibold text-gray-800 flex items-center gap-2">
                     <Calendar size={16} className="text-blue-600" />
                     Timeline Information
@@ -567,23 +577,21 @@ const DepartmentNew = () => {
             </div>
 
             {modalMode !== 'view' && (
-              <div className="sticky bottom-0 bg-white rounded-b-2xl border-t border-gray-100 px-6 py-4">
-                <div className="flex gap-3">
-                  <button
-                    onClick={handleSave}
-                    disabled={isLoading}
-                    className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl flex items-center justify-center gap-2 transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100 shadow-lg"
-                  >
-                    <Save size={16} />
-                    {isLoading ? 'Saving...' : 'Save Changes'}
-                  </button>
-                  <button
-                    onClick={closeModal}
-                    className="px-6 py-3 border-2 border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 transform hover:scale-[1.02] font-medium"
-                  >
-                    Cancel
-                  </button>
-                </div>
+              <div className="flex items-center justify-end space-x-4 px-8 py-3 bg-gray-50 rounded-b-2xl gap-2">
+                <button
+                  type="button"
+                  className="px-6 py-2 text-gray-700 bg-white border border-gray-300 rounded-3 hover:bg-gray-50 focus:ring-2 focus:ring-gray-200 transition-colors font-medium"
+                  onClick={closeModal}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-3 focus:ring-2 focus:ring-blue-500 transition-colors font-medium shadow-lg"
+                  onClick={handleSave}
+                >
+                  {modalMode === "add" ? "Add Department" : "Save Changes"}
+                </button>
               </div>
             )}
           </div>

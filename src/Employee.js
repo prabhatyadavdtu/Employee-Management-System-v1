@@ -2,8 +2,10 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Plus, Edit, Trash2, Search, Mail, Phone, X, User } from "lucide-react";
 import { variables } from "./Variables";
 import apiService from "./services/api";
+import { useLocation } from "react-router-dom";
 
 const Employee = () => {
+  const location = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
   const [employees, setEmployees] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -33,6 +35,12 @@ const Employee = () => {
     hasNextPage: false,
     hasPreviousPage: false,
   });
+
+  useEffect(() => {
+    if (location.state?.AddEmployeeModal) {
+      setShowModal(true);
+    }
+  }, [location.state]);
 
   // Fetch employees with pagination
   const fetchEmployees = useCallback(
